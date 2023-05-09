@@ -5,8 +5,21 @@ use Steampixel\Route;
     require_once('config.php');
     require_once('class/User.class.php');
 
+    session_start();
+
     Route::add('/', function() {
-        echo "Strona Główna";
+        global $twig;
+        $v = array();
+        if(isset($_SESSION['auth']))
+        if($_SESSION['auth']) {
+            $user = $_SESSION['user'];
+            $v = array('user' => $user);
+        }
+        $twig->display('home.html.twig', $v);
+        
+
+        //echo "<pre>";
+        //var_dump($_SESSION);
     });
 
     Route::add('/login', function() {
@@ -19,6 +32,8 @@ use Steampixel\Route;
         if(isset($_REQUEST['login']) && isset($_REQUEST['password'])) {
             $user = new User($_REQUEST['login'], $_REQUEST['password']);
             if($user->login()) {
+                $_SESSION['auth'] = true;
+                $_SESSION['user'] = $user;
                 $v = array('message' => "Zalogowano poprawnie użytkownika: ".$user->getName(),
             );
                 $twig->display('message.html.twig', $v);
@@ -40,7 +55,7 @@ use Steampixel\Route;
         if(isset($_REQUEST['login']) && isset($_REQUEST['password'])) {
             if(empty($_REQUEST['login']) || empty($_REQUEST['password'])
                     || empty($_REQUEST['firstName']) || empty($_REQUEST['lastName'])) {
-                        $twig->display('register.html.twig', ['message' => "Nie podano wymaganej wartości"]);
+                        $twig->display('.html.twig', ['message' => "Nie podano wymaganej wartości"]);
                         exit();
                     }
             $user = new User($_REQUEST['login'], $_REQUEST['password']);
@@ -51,7 +66,7 @@ use Steampixel\Route;
                 $twig->display('message.html.twig',['message' => "Zarejestrowano poprawnie"]);
          } else {
                 //echo "Błąd rejestracji użytkownika";
-                $twig->display('register.html.twig',['message' => "Błąd rejestracji użytkownika"]);
+                $twig->display('message.html.twig',['message' => "Błąd rejestracji użytkownika"]);
             }
     
     
@@ -59,6 +74,12 @@ use Steampixel\Route;
             die("Nie otrzymano danych");
         }
     }, 'post');
+
+    Route::add('/logout', function() {
+            global $twig;
+            session_destroy();
+            $twig->display('message.html.twig', ['message' => "Wylogowano poprawnie"]);
+    });
 
     Route::run('/loginform');
 ?>
