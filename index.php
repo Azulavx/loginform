@@ -2,10 +2,20 @@
     require_once('class/User.class.php');
 
     $user = new User('jkowalski', 'tajneHasło');
-    //$user->register();
-    $user->login();
+    /*
+    if ($user->register()) {
+        echo "Zarejestrowano poprawnie";
 
-    echo '<pre>';
-    var_dump($user);
+    } else {
+        echo "Błąd rejestracji użytkownika";
+    }
+
+    */
+    if($user->login()) {
+        echo "Zalogowano poprawnie!";
+    } else {
+        echo "Błędny login lub hasło!";
+    }
+    $user->login();
 
 ?>
